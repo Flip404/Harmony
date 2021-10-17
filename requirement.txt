@@ -1,5 +1,6 @@
-- discord
-- discord.ext
-- youtube_dl
-- youtubesearchpython
-- asyncio
+git+https://github.com/Flip404/Harmony/blob/main/main.py@rewrite
+discord==1.7.3
+discord.ext==1.7.3
+youtube_dl==2021.6.6
+youtubesearchpython==1.4.9
+asyncio==3.4.3
