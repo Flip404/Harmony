@@ -59,6 +59,8 @@ class music(commands.Cog):
                 await ctx.send("Now Playing Music", delete_after=5)
                 vc.play(source, after=lambda x=None: self.check_queue(ctx))
                 vc.is_playing()
+            else:
+                await ctx.send("already play music", delete_after=5)
 
 
     def check_queue(self, ctx):
