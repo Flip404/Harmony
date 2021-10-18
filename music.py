@@ -1,14 +1,13 @@
 import discord
 from discord.ext import commands
 import youtube_dl
-import youtubesearchpython as ysp
 import asyncio
 
 user = ''
 url_list = []
 title_list = {}
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-YDL_OPTIONS = {'format': "bestaudio"}
+YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True'}
 
 
 class music(commands.Cog):
@@ -39,14 +38,12 @@ class music(commands.Cog):
         try:
             num = await self.check_voice_channel(ctx)
             if num:
-                new_url = ysp.VideosSearch(url, limit=1)
-                link = new_url.result()['result'][0]['link']
-                title = new_url.result()['result'][0]['title']
-                aa = [title, link]
                 with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-                    info = ydl.extract_info(link, download=False)
+                    info = ydl.extract_info("ytsearch:%s" % url, download=False)['entries'][0]
                     url2 = info['formats'][0]['url']
-                    source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
+                    title = info['title']
+                    source = await discord.FFmpegPCMAudio(url2, **FFMPEG_OPTIONS)
+                    aa = [title, url2]
                     url_list.append(source)
                     title_list[source] = aa
                 vc = ctx.voice_client
