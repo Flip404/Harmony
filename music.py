@@ -3,6 +3,7 @@ from discord.ext import commands
 import youtube_dl
 import youtubesearchpython as ysp
 import asyncio
+import validators
 
 user = ''
 url_list = []
@@ -18,6 +19,8 @@ class music(commands.Cog):
 
     @commands.command()
     async def disconnect(self, ctx):
+        url_list.clear()
+        title_list.clear()
         await ctx.message.guild.voice_client.disconnect()
 
     async def check_voice_channel(self, ctx):
@@ -39,16 +42,17 @@ class music(commands.Cog):
         try:
             num = await self.check_voice_channel(ctx)
             if num:
-                new_url = ysp.VideosSearch(url, limit=1)
-                link = new_url.result()['result'][0]['link']
-                title = new_url.result()['result'][0]['title']
-                aa = [title, link]
+                url_valid = validators.url(url)
+                if not url_valid:
+                    new_url = ysp.VideosSearch(url, limit=1)
+                    url = new_url.result()['result'][0]['link']
                 with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-                    info = ydl.extract_info(link, download=False)
+                    info = ydl.extract_info(url, download=False)
                     url2 = info['formats'][0]['url']
+                    title = info['title']
                     source = discord.FFmpegOpusAudio(url2, **FFMPEG_OPTIONS)
                     url_list.append(source)
-                    title_list[source] = aa
+                    title_list[source] = [title, url]
                 vc = ctx.voice_client
                 if not vc.is_playing():
                     url_list.remove(source)
@@ -87,8 +91,15 @@ class music(commands.Cog):
             await ctx.send("The queue is currently empty!", delete_after=10)
 
     @commands.command()
+    async def stop(self, ctx):
+        vc = ctx.voice_client
+        if vc.is_playing():
+            vc.stop()
+        else:
+            await ctx.send("You are not currently playing!", delete_after=10)
+
+    @commands.command()
     async def ping(self, ctx):
-        global user
         ping = round(user.latency * 1000)
         des = f'📶\t{ping} ms'
         embed = discord.Embed(title='🚦Ping🚦', description=des, colour=discord.Colour.blue())
