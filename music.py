@@ -51,12 +51,13 @@ class music(commands.Cog):
                 source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
                 url_list.append(source)
                 title_list[source] = aa
+                await ctx.send("added to the sources and title list", delete_after=5)
             vc = ctx.voice_client
             await ctx.send("prepare to play music", delete_after=5)
             if not vc.is_playing():
+                await ctx.send("Now Playing Music", delete_after=5)
                 url_list.remove(source)
                 title_list.pop(source)
-                await ctx.send("Now Playing Music", delete_after=5)
                 vc.play(source, after=lambda x=None: self.check_queue(ctx))
                 vc.is_playing()
             else:
