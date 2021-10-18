@@ -42,7 +42,7 @@ class music(commands.Cog):
                 new_url = ysp.VideosSearch(url, limit=1)
                 link = new_url.result()['result'][0]['link']
                 title = new_url.result()['result'][0]['title']
-                aa = [title , link]
+                aa = [title, link]
                 await ctx.send(title, delete_after=5)
                 with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
                     info = ydl.extract_info(link, download=False)
@@ -59,7 +59,6 @@ class music(commands.Cog):
         except Exception as e:
             await ctx.send(e, delete_after=5)
 
-
     def check_queue(self, ctx):
         if url_list:
             voice = ctx.guild.voice_client
@@ -72,7 +71,7 @@ class music(commands.Cog):
         if url_list:
             embed = discord.Embed(title=f'🎶\t🎶\t🎶\t', description=' ', colour=discord.Colour.blue())
             for url in url_list:
-                title , link = title_list[url]
+                title, link = title_list[url]
                 embed.add_field(name=title, value=link, inline=False)
             await ctx.send(embed=embed)
         else:
@@ -100,7 +99,8 @@ class music(commands.Cog):
     async def help(self, ctx):
         embed = discord.Embed(colour=discord.Colour.blue())
         embed.set_author(name='🙋Help🙋')
-        embed.add_field(name="\\\tplay\n\\\tdisconnect\n\\\tqueue\n\\\tnext\n\\\tping", value="\t🔥\t🔥\t🔥\t", inline=False)
+        embed.add_field(name="\\\tplay\n\\\tdisconnect\n\\\tqueue\n\\\tnext\n\\\tping", value="\t🔥\t🔥\t🔥\t",
+                        inline=False)
         await ctx.send(embed=embed)
 
 
