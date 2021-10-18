@@ -53,14 +53,13 @@ class music(commands.Cog):
                 title_list[source] = aa
             vc = ctx.voice_client
             await ctx.send("prepare to play music", delete_after=5)
-            if vc.is_playing():
-                pass
-            else:
+            if not vc.is_playing():
                 url_list.remove(source)
                 title_list.pop(source)
                 await ctx.send("Now Playing Music", delete_after=5)
                 vc.play(source, after=lambda x=None: self.check_queue(ctx))
                 vc.is_playing()
+
 
     def check_queue(self, ctx):
         if url_list:
