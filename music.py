@@ -39,19 +39,20 @@ class music(commands.Cog):
         num = await self.check_voice_channel(ctx)
         if num:
             await ctx.send(num, delete_after=5)
-            await ctx.send(url, delete_after=5)
             new_url = ysp.VideosSearch(url, limit=1)
             link = new_url.result()['result'][0]['link']
             title = new_url.result()['result'][0]['title']
             aa = [title , link]
             await ctx.send(title, delete_after=5)
             with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+                await ctx.send(link, delete_after=5)
                 info = ydl.extract_info(link, download=False)
                 url2 = info['formats'][0]['url']
                 source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
                 url_list.append(source)
                 title_list[source] = aa
             vc = ctx.voice_client
+            await ctx.send("prepare to play music", delete_after=5)
             if vc.is_playing():
                 pass
             else:
