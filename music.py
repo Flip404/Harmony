@@ -36,32 +36,28 @@ class music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, url: str):
-        num = await self.check_voice_channel(ctx)
-        if num:
-            await ctx.send(num, delete_after=5)
-            new_url = ysp.VideosSearch(url, limit=1)
-            link = new_url.result()['result'][0]['link']
-            title = new_url.result()['result'][0]['title']
-            aa = [title , link]
-            await ctx.send(title, delete_after=5)
-            with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-                await ctx.send(link, delete_after=5)
-                info = ydl.extract_info(link, download=False)
-                url2 = info['formats'][0]['url']
-                source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
-                url_list.append(source)
-                title_list[source] = aa
-                await ctx.send("added to the sources and title list", delete_after=5)
-            vc = ctx.voice_client
-            await ctx.send("prepare to play music", delete_after=5)
-            if not vc.is_playing():
-                await ctx.send("Now Playing Music", delete_after=5)
-                url_list.remove(source)
-                title_list.pop(source)
-                vc.play(source, after=lambda x=None: self.check_queue(ctx))
-                vc.is_playing()
-            else:
-                await ctx.send("already play music", delete_after=5)
+        try:
+            num = await self.check_voice_channel(ctx)
+            if num:
+                new_url = ysp.VideosSearch(url, limit=1)
+                link = new_url.result()['result'][0]['link']
+                title = new_url.result()['result'][0]['title']
+                aa = [title , link]
+                await ctx.send(title, delete_after=5)
+                with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+                    info = ydl.extract_info(link, download=False)
+                    url2 = info['formats'][0]['url']
+                    source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
+                    url_list.append(source)
+                    title_list[source] = aa
+                vc = ctx.voice_client
+                if not vc.is_playing():
+                    url_list.remove(source)
+                    title_list.pop(source)
+                    vc.play(source, after=lambda x=None: self.check_queue(ctx))
+                    vc.is_playing()
+        except Exception as e:
+            await ctx.send(e, delete_after=5)
 
 
     def check_queue(self, ctx):
