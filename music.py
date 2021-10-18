@@ -38,10 +38,12 @@ class music(commands.Cog):
     async def play(self, ctx, *, url: str):
         num = await self.check_voice_channel(ctx)
         if num:
+            await ctx.send(num, delete_after=5)
             new_url = ysp.VideosSearch(url, limit=1)
             link = new_url.result()['result'][0]['link']
             title = new_url.result()['result'][0]['title']
             aa = [title , link]
+            await ctx.send(title , link, delete_after=5)
             with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
                 info = ydl.extract_info(link, download=False)
                 url2 = info['formats'][0]['url']
@@ -54,6 +56,7 @@ class music(commands.Cog):
             else:
                 url_list.remove(source)
                 title_list.pop(source)
+                await ctx.send("Now Playing Music", delete_after=5)
                 vc.play(source, after=lambda x=None: self.check_queue(ctx))
                 vc.is_playing()
 
