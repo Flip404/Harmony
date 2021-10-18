@@ -43,7 +43,6 @@ class music(commands.Cog):
                 link = new_url.result()['result'][0]['link']
                 title = new_url.result()['result'][0]['title']
                 aa = [title, link]
-                await ctx.send(title, delete_after=5)
                 with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
                     info = ydl.extract_info(link, download=False)
                     url2 = info['formats'][0]['url']
