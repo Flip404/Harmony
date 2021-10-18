@@ -42,7 +42,7 @@ class music(commands.Cog):
                     info = ydl.extract_info("ytsearch:%s" % url, download=False)['entries'][0]
                     url2 = info['formats'][0]['url']
                     title = info['title']
-                    source = await discord.FFmpegPCMAudio(url2, **FFMPEG_OPTIONS)
+                    source = discord.FFmpegPCMAudio(url2, **FFMPEG_OPTIONS)
                     aa = [title, url2]
                     url_list.append(source)
                     title_list[source] = aa
