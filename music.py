@@ -53,7 +53,7 @@ class music(commands.Cog):
                     vc.play(source, after=lambda x=None: self.check_queue(ctx))
                     vc.is_playing()
         except Exception as e:
-            await ctx.send(e, delete_after=5)
+            await ctx.send(e)
 
     def check_queue(self, ctx):
         if url_list:
