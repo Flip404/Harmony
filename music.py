@@ -37,6 +37,11 @@ class music(commands.Cog):
             num = True
             return num
 
+    async def current_playing(self, ctx, source):
+        title, link = title_list[source]
+        embed = discord.Embed(title=f"Currently Playing : {title} 🎶", url=link, colour=discord.Colour.blue())
+        await ctx.send(embed=embed, delete_after=60)
+
     @commands.command()
     async def play(self, ctx, *, url: str):
         try:
@@ -50,24 +55,36 @@ class music(commands.Cog):
                     info = ydl.extract_info(url, download=False)
                     url2 = info['formats'][0]['url']
                     title = info['title']
-                    source = discord.FFmpegOpusAudio(url2, **FFMPEG_OPTIONS)
+                    source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
                     url_list.append(source)
                     title_list[source] = [title, url]
                 vc = ctx.voice_client
                 if not vc.is_playing():
+                    await self.current_playing(ctx, source)
                     url_list.remove(source)
                     title_list.pop(source)
-                    vc.play(source, after=lambda x=None: self.check_queue(ctx))
+                    vc.play(source, after=lambda x=None: asyncio.run(self.check_queue(ctx)))
                     vc.is_playing()
+                else:
+                    title, link = title_list[source]
+                    embed = discord.Embed(title=f"🔔 Added to Queue : {title}", url=link, description="", colour=discord.Colour.blue())
+                    await ctx.send(embed=embed, delete_after=60)
         except Exception as e:
-            await ctx.send(e, delete_after=5)
+            await ctx.send(e, delete_after=30)
 
-    def check_queue(self, ctx):
-        if url_list:
-            voice = ctx.guild.voice_client
-            source = url_list.pop(0)
-            title_list.pop(source)
-            player = voice.play(source, after=lambda x=None: self.check_queue(ctx))
+    async def check_queue(self, ctx):
+        try :
+            if url_list:
+                voice = ctx.guild.voice_client
+                source = url_list.pop(0)
+                await self.current_playing(ctx, source)
+                title_list.pop(source)
+                voice.play(source, after=lambda x=None: asyncio.run(self.check_queue(ctx)))
+            else:
+                async with timeout(60):
+                    await self.disconnect(ctx)
+        except RuntimeError:
+            pass
 
     @commands.command()
     async def queue(self, ctx):
