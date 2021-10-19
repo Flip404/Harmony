@@ -89,7 +89,7 @@ class music(commands.Cog):
     @commands.command()
     async def queue(self, ctx):
         if url_list:
-            embed = discord.Embed(title=f'🎶\t🎶\t🎶\t', description=' ', colour=discord.Colour.blue())
+            embed = discord.Embed(title=f'🎶\t🎶\t🎶\t', colour=discord.Colour.blue())
             for url in url_list:
                 title, link = title_list[url]
                 embed.add_field(name=title, value=link, inline=False)
