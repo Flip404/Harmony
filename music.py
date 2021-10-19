@@ -8,6 +8,8 @@ import validators
 user = ''
 url_list = []
 title_list = {}
+loop = False
+async_loop = asyncio.get_event_loop()
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 YDL_OPTIONS = {'format': 'bestaudio'}
 
@@ -21,6 +23,8 @@ class music(commands.Cog):
     async def disconnect(self, ctx):
         url_list.clear()
         title_list.clear()
+        global loop
+        loop = False
         await ctx.message.guild.voice_client.disconnect()
 
     async def check_voice_channel(self, ctx):
@@ -36,11 +40,6 @@ class music(commands.Cog):
                 await ctx.voice_client.move_to(voice_channel)
             num = True
             return num
-
-    async def current_playing(self, ctx, source):
-        title, link = title_list[source]
-        embed = discord.Embed(title=f"Currently Playing : {title} 🎶", url=link, colour=discord.Colour.blue())
-        await ctx.send(embed=embed, delete_after=60)
 
     @commands.command()
     async def play(self, ctx, *, url: str):
@@ -60,10 +59,7 @@ class music(commands.Cog):
                     title_list[source] = [title, url]
                 vc = ctx.voice_client
                 if not vc.is_playing():
-                    await self.current_playing(ctx, source)
-                    url_list.remove(source)
-                    title_list.pop(source)
-                    vc.play(source, after=lambda x=None: asyncio.run(self.check_queue(ctx)))
+                    vc.play(source, after=lambda x=None: self.check_queue(ctx))
                     vc.is_playing()
                 else:
                     title, link = title_list[source]
@@ -72,19 +68,34 @@ class music(commands.Cog):
         except Exception as e:
             await ctx.send(e, delete_after=30)
 
-    async def check_queue(self, ctx):
+    def check_queue(self, ctx):
         try :
             if url_list:
                 voice = ctx.guild.voice_client
-                source = url_list.pop(0)
-                await self.current_playing(ctx, source)
-                title_list.pop(source)
-                voice.play(source, after=lambda x=None: asyncio.run(self.check_queue(ctx)))
-            else:
-                async with timeout(60):
-                    await self.disconnect(ctx)
-        except RuntimeError:
-            pass
+                preview_source = url_list.pop(0)
+                if not url_list:
+                    pass
+                elif loop:
+                    url_list.append(preview_source)
+                    source = url_list[0]
+                    voice.play(source, after=lambda x=None: self.check_queue(ctx))
+                else:
+                    title_list.pop(preview_source)
+                    source = url_list[0]
+                    voice.play(source, after=lambda x=None: self.check_queue(ctx))
+        except Exception as e:
+            print(e)
+
+    @commands.command()
+    async def loop(self, ctx):
+        global loop
+        if loop:
+            await ctx.send("🔁 Loop disable 🔁", delete_after=60)
+            loop = False
+        else:
+            await ctx.send("🔁 Loop enable 🔁", delete_after=60)
+            loop = True
+
 
     @commands.command()
     async def queue(self, ctx):
