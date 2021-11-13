@@ -1,10 +1,15 @@
 from discord.ext import commands
 import music
+import os
+import json
 
+with open("./config.json") as f:
+    configData = json.load(f)
+token = configData["Token"]
 cogs = [music]
 client = commands.Bot(command_prefix='\\')
 client.remove_command('help')
 for i in range(len(cogs)):
     cogs[i].setup(client)
 
-client.run("ODk3ODQ5OTM0NDk2Mjc2NTAx.YWbp6Q.RSS69jEftslD1C0GjV9n_7T5Rbw")
+client.run(token)
