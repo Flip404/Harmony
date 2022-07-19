@@ -22,7 +22,7 @@ httpx==0.23.0
 idna==3.2
 motor==2.5.1
 multidict==5.2.0
-Pillow==9.0.0
+Pillow==9.0.1
 psycopg2-binary==2.9.1
 pycparser==2.20
 pymongo==3.12.0
